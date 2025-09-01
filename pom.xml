@@ -10,5 +10,6 @@
 
     <modules>
         <module>sensor-simulator</module>
+        <module>sensor-ingestion-service</module>
     </modules>
 </project>

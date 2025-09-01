@@ -5,16 +5,16 @@ services:
     ports:
       - "9094:9094"
     environment:
-      - KAFKA_CFG_NODE_ID=1
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - kafka-data:/bitnami/kafka
 
@@ -27,11 +27,41 @@ services:
     depends_on:
       - kafka
 
+  iot-postgres:
+    image: postgres:16
+    container_name: iot-postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: iotdb
+    ports: [ "5432:5432" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d iotdb" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  sensor-ingestion-service:
+    build: ./sensor-ingestion-service
+    depends_on:
+      kafka:
+        condition: service_started
+      iot-postgres:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      KAFKA_TOPIC: iot.readings.raw
+      POSTGRES_HOST: iot-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: iotdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
   sensor-simulator:
     build: ./sensor-simulator
     environment:
-      - KAFKA_BOOTSTRAP=kafka:9092
-      - KAFKA_TOPIC=iot.readings.raw
+      KAFKA_BOOTSTRAP: kafka:9092
+      KAFKA_TOPIC: iot.readings.raw
     depends_on:
       - kafka
 
