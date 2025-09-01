@@ -5,5 +5,6 @@ import com.itp.sensor_simulator.model.SensorType;
 
 public interface ValueGenerator {
     SensorType supports();
+    SensorTuning defaults();
     double generate();
 }

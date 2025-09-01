@@ -19,6 +19,11 @@ public class HeartRateGenerator implements ValueGenerator {
     }
 
     @Override
+    public SensorTuning defaults() {
+        return DEF;
+    }
+
+    @Override
     public double generate() {
         var rnd = ThreadLocalRandom.current();
         double delta_v = delta(DEF.drift());

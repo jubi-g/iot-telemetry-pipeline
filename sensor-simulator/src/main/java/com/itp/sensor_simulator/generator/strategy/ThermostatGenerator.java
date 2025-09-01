@@ -18,6 +18,11 @@ public class ThermostatGenerator implements ValueGenerator {
     }
 
     @Override
+    public SensorTuning defaults() {
+        return DEF;
+    }
+
+    @Override
     public double generate() {
         double value = DEF.baseline() + delta(DEF.drift());
         return round1(clamp(value, DEF.min(), DEF.max()));

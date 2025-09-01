@@ -19,7 +19,7 @@ public class KafkaProducer implements ReadingProducer {
     @Override
     public void send(Reading r) {
         try {
-            String key = r.getSensorId();
+            String key = r.sensorId();
             String json = objectMapper.writeValueAsString(r);
             kafkaTemplate.send(props.getTopic(), key, json);
             // log.info("Sent reading to {} with key {}: {}", props.getTopic(), key, json);
