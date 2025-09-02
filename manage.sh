@@ -19,8 +19,9 @@ case "$ACTION" in
         docker compose up -d sensor-ingestion-service
         ;;
       infra)
-        echo "🚀 Starting infra (Kafka, Kafdrop, Postgres)..."
-        docker compose up -d kafka kafdrop iot-postgres
+        echo "🚀 Starting infra (Kafka, Kafdrop, Postgres, Prometheus, Grafana)..."
+        docker compose build --no-cache kafka kafdrop iot-postgres prometheus grafana
+        docker compose up -d kafka kafdrop iot-postgres prometheus grafana
         ;;
       apps)
         echo "🚀 Starting app services (ingestion, simulator, aggregator)..."
@@ -29,7 +30,7 @@ case "$ACTION" in
         ;;
       all)
         echo "🚀 Starting infra + apps..."
-        docker compose up -d kafka kafdrop iot-postgres
+        docker compose up -d kafka kafdrop iot-postgres prometheus grafana
         echo "⏳ Waiting for infra to initialize..."
         sleep 15
         docker compose up -d sensor-ingestion-service sensor-simulator aggregate-service
@@ -41,7 +42,7 @@ case "$ACTION" in
     case "$TARGET" in
       infra)
         echo "🛑 Stopping infra..."
-        docker compose stop kafka kafdrop iot-postgres
+        docker compose stop kafka kafdrop iot-postgres prometheus grafana
         ;;
       apps)
         echo "🛑 Stopping apps..."
@@ -57,8 +58,8 @@ case "$ACTION" in
   down)
     case "$TARGET" in
       infra)
-        echo "💣 Removing infra (Kafka, Kafdrop, Postgres)..."
-        docker compose rm -sf kafka kafdrop iot-postgres
+        echo "💣 Removing infra (Kafka, Kafdrop, Postgres, Prometheus, Grafana)..."
+        docker compose rm -sf kafka kafdrop iot-postgres prometheus grafana
         ;;
       apps)
         echo "💣 Removing apps..."

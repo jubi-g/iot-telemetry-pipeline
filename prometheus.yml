@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'sensor-ingestion-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['sensor-ingestion-service:8081']
+
+  - job_name: 'aggregate-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['aggregate-service:8081']
+
+  - job_name: 'sensor-simulator'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [ 'sensor-simulator:8081' ]
