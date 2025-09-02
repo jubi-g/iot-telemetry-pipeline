@@ -1,5 +1,6 @@
 package com.itp.aggregate_service.repository;
 
+import com.itp.aggregate_service.repository.impl.MinuteAggregateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

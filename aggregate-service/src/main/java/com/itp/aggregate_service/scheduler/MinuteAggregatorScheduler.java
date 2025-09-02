@@ -2,7 +2,7 @@ package com.itp.aggregate_service.scheduler;
 
 import com.itp.aggregate_service.config.AggConfig;
 import com.itp.aggregate_service.service.AggregationService;
-import com.itp.aggregate_service.utils.TimeUtil;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,20 +21,21 @@ public class MinuteAggregatorScheduler implements Scheduler{
     private final AggregationService service;
 
     @Override
+    @Timed(value = "agg.run", histogram = true) // TODO: use this metric
     @Scheduled(fixedDelayString = "30000", initialDelayString = "15000")
     public void runSchedule() {
-        log.info("Aggregator tick at {}", Instant.now());
+        Instant end = latestUtcMinute(Instant.now().minusSeconds(aggConfig.getDelaySeconds()));
+        Instant start = service.computeStartTime(end);
+        if (start.isAfter(end)) {
+            log.debug("Skip aggregation: start={} > end={}", start, end);
+            return;
+        }
+
         try {
-            Instant now = Instant.now().minusSeconds(aggConfig.getDelaySeconds());
-            Instant endTime = latestUtcMinute(now);
-            Instant startTime = service.computeStartTime(endTime);
-            if (startTime.isAfter(endTime)) {
-                log.info("Nothing to aggregate: startTime={} > endTime={}", startTime, endTime);
-                return;
-            }
-            service.aggregateRangedWindow(startTime, endTime);
+            log.info("Aggregating window start={} end={}", start, end);
+            service.aggregateRangedWindow(start, end);
         } catch (Exception e) {
-            log.error("Aggregate job failed", e);
+            log.error("Aggregation failed", e);
         }
     }
 }

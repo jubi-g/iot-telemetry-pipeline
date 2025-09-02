@@ -1,7 +1,7 @@
 package com.itp.aggregate_service.service;
 
 import com.itp.aggregate_service.config.AggConfig;
-import com.itp.aggregate_service.repository.MinuteAggregateRepository;
+import com.itp.aggregate_service.repository.impl.MinuteAggregateRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;

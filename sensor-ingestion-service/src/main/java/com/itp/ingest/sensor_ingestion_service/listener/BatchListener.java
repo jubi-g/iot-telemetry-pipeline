@@ -6,5 +6,5 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.util.List;
 
 public interface BatchListener {
-    void onBatchMessage(List<ConsumerRecord<String, String>> records, Acknowledgment ack) throws Exception;
+    void onBatchMessage(List<ConsumerRecord<String, String>> records, Acknowledgment ack);
 }

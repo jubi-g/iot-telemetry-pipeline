@@ -13,6 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.backoff.FixedBackOff;
@@ -21,34 +22,43 @@ import org.springframework.util.backoff.FixedBackOff;
 @Configuration
 public class KafkaConfig {
     @Bean
-    ObjectMapper objectMapper() {
+    public ObjectMapper objectMapper() {
         ObjectMapper om = new ObjectMapper();
         om.registerModule(new JavaTimeModule());
         return om;
     }
 
     @Bean
-    public TaskScheduler kafkaRetryTaskScheduler() {
+    public TaskScheduler taskScheduler(@Value("${app.scheduler.poolSize:2}") int poolSize) {
         ThreadPoolTaskScheduler ts = new ThreadPoolTaskScheduler();
-        ts.setPoolSize(2);
-        ts.setThreadNamePrefix("kafka-retry-");
+        ts.setPoolSize(poolSize);
+        ts.setThreadNamePrefix("ingest-scheduler-");
         ts.initialize();
         return ts;
     }
 
     @Bean
-    public DefaultErrorHandler errorHandler(KafkaTemplate<Object, Object> template,
-                                            @Value("${app.topic:iot.readings.raw}") String topic) {
+    public DefaultErrorHandler errorHandler(
+        KafkaTemplate<Object, Object> template,
+        @Value("${app.topic:iot.readings.raw}") String topic,
+        @Value("${app.kafka.backoff.ms:500}") long backoffMs,
+        @Value("${app.kafka.max.retries:3}") long maxRetries
+    ) {
         var recoverer = new DeadLetterPublishingRecoverer(
-                template,
-                (rec, ex) -> new TopicPartition(topic + ".DLT", rec.partition())
+            template,
+            (rec, ex) -> new TopicPartition(topic + ".DLT", rec.partition())
         );
-        return new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 2L));
+        var eh = new DefaultErrorHandler(recoverer, new FixedBackOff(backoffMs, maxRetries));
+        eh.addNotRetryableExceptions(DeserializationException.class, IllegalArgumentException.class);
+        return eh;
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
-            ConsumerFactory<String, String> consumerFactory, DefaultErrorHandler errorHandler) {
+        ConsumerFactory<String, String> consumerFactory,
+        DefaultErrorHandler errorHandler,
+        @Value("${app.kafka.concurrency:3}") int concurrency
+    ) {
         var f = new ConcurrentKafkaListenerContainerFactory<String, String>();
         f.setConsumerFactory(consumerFactory);
         f.setBatchListener(true);
@@ -56,6 +66,7 @@ public class KafkaConfig {
         f.getContainerProperties().setMicrometerEnabled(true);
         f.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         f.setCommonErrorHandler(errorHandler);
+        f.setConcurrency(concurrency);
         return f;
     }
 }

@@ -1,7 +1,7 @@
 package com.itp.aggregate_service.service;
 
 import com.itp.aggregate_service.config.AggConfig;
-import com.itp.aggregate_service.repository.MinuteAggregateRepository;
+import com.itp.aggregate_service.repository.impl.MinuteAggregateRepository;
 import com.itp.aggregate_service.utils.TimeUtil;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -45,6 +45,7 @@ public class MinuteAggregationService implements AggregationService {
         long t0 = System.nanoTime();
         int sensor = 0, group = 0, minutes = 0;
 
+        // TODO: for_improvement; implement batch aggregations
         for (Instant bucket = startTime; !bucket.isAfter(endTime); bucket = bucket.plus(1, ChronoUnit.MINUTES)) {
             sensor += repository.upsertAggregate(bucket);
             group  += repository.upsertGroupAggregate(bucket);

@@ -2,9 +2,9 @@ package com.itp.ingest.sensor_ingestion_service.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.itp.ingest.sensor_ingestion_service.config.IngestMetrics;
 import com.itp.ingest.sensor_ingestion_service.model.ReadingMessage;
 import com.itp.ingest.sensor_ingestion_service.service.BatchIngestionService;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class KafkaBatchListenerTest {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         BatchIngestionService service = mock(BatchIngestionService.class);
         Acknowledgment ack = mock(Acknowledgment.class);
-        MeterRegistry metrics = new SimpleMeterRegistry();
+        IngestMetrics metrics = new IngestMetrics(new SimpleMeterRegistry());
         KafkaBatchListener listener = new KafkaBatchListener(mapper, service, metrics);
 
         List<ConsumerRecord<String, String>> records = new ArrayList<>();
@@ -51,9 +51,9 @@ class KafkaBatchListenerTest {
         verify(ack, times(1)).acknowledge();
         verifyNoMoreInteractions(service, ack);
 
-        assertThat(metrics.counter("ingest.records.invalid").count()).isEqualTo(0); // 0
-        assertThat(metrics.counter("ingest.records.parsed").count()).isEqualTo(2);  // 2
-        assertThat(metrics.counter("ingest.records.total").count()).isEqualTo(2);   // 2
+        assertThat(metrics.invalid().count()).isEqualTo(0); // 0
+        assertThat(metrics.parsed().count()).isEqualTo(2);  // 2
+        assertThat(metrics.total().count()).isEqualTo(2);   // 2
     }
 
     @Test
@@ -61,7 +61,7 @@ class KafkaBatchListenerTest {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         BatchIngestionService service = mock(BatchIngestionService.class);
         Acknowledgment ack = mock(Acknowledgment.class);
-        MeterRegistry metrics = new SimpleMeterRegistry();
+        IngestMetrics metrics = new IngestMetrics(new SimpleMeterRegistry());
         KafkaBatchListener listener = new KafkaBatchListener(mapper, service, metrics);
 
         List<ConsumerRecord<String, String>> records = new ArrayList<>();
@@ -72,8 +72,8 @@ class KafkaBatchListenerTest {
         listener.onBatchMessage(records, ack);
         verify(ack, times(1)).acknowledge();
 
-        assertThat(metrics.counter("ingest.records.invalid").count()).isEqualTo(1); // 1
-        assertThat(metrics.counter("ingest.records.parsed").count()).isEqualTo(1);  // 1
-        assertThat(metrics.counter("ingest.records.total").count()).isEqualTo(2);   // 2
+        assertThat(metrics.invalid().count()).isEqualTo(1); // 1
+        assertThat(metrics.parsed().count()).isEqualTo(1);  // 1
+        assertThat(metrics.total().count()).isEqualTo(2);   // 2
     }
 }
