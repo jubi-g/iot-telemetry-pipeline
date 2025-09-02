@@ -12,6 +12,12 @@ TARGET=${2:-all}
 case "$ACTION" in
   run)
     case "$TARGET" in
+      ingest)
+        echo "🚀 Starting app services (ingest)..."
+        docker compose rm -sf sensor-ingestion-service
+        docker compose build --no-cache sensor-ingestion-service
+        docker compose up -d sensor-ingestion-service
+        ;;
       infra)
         echo "🚀 Starting infra (Kafka, Kafdrop, Postgres)..."
         docker compose up -d kafka kafdrop iot-postgres

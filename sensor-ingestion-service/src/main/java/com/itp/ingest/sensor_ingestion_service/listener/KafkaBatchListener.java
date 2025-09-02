@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaReadingListener implements BatchListener {
+public class KafkaBatchListener implements BatchListener {
     private final ObjectMapper objectMapper;
     private final BatchIngestionService service;
 

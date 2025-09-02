@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
-public class ReadingBatchRepository implements JdbcBatchRepository {
+public class PostgresBatchRepository implements JdbcBatchRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
