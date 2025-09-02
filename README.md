@@ -15,6 +15,11 @@ A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing 
   * Postgres
   * Docker
 
+* ### Observability
+  * `Grafana` -> http://localhost:3000/dashboards
+  * `Prommetheus` -> http://localhost:9090/targets
+  * `Kafka` -> http://localhost:9000
+
 ## Quick start
 ```
 # Build and run infra (kafka, postgres)

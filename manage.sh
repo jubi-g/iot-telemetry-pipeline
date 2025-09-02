@@ -67,7 +67,7 @@ case "$ACTION" in
         ;;
       all)
         echo "💣 Removing everything (containers + networks + volumes)..."
-        docker compose down -v
+        docker compose down -v --remove-orphans
         ;;
       *) usage ;;
     esac

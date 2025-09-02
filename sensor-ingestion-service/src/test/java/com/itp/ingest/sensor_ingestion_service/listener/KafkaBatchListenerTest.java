@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.itp.ingest.sensor_ingestion_service.model.ReadingMessage;
 import com.itp.ingest.sensor_ingestion_service.service.BatchIngestionService;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,7 +28,8 @@ class KafkaBatchListenerTest {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         BatchIngestionService service = mock(BatchIngestionService.class);
         Acknowledgment ack = mock(Acknowledgment.class);
-        KafkaBatchListener listener = new KafkaBatchListener(mapper, service);
+        MeterRegistry metrics = new SimpleMeterRegistry();
+        KafkaBatchListener listener = new KafkaBatchListener(mapper, service, metrics);
 
         List<ConsumerRecord<String, String>> records = new ArrayList<>();
         String json1 = "{\"sensorId\":\"" + UUID.randomUUID() + "\",\"sensorName\":\"s1\",\"type\":\"temp\",\"houseId\":\"h1\",\"zone\":\"z1\",\"timestamp\":\"" + Instant.now() + "\",\"value\":21.5}";
@@ -47,6 +50,10 @@ class KafkaBatchListenerTest {
 
         verify(ack, times(1)).acknowledge();
         verifyNoMoreInteractions(service, ack);
+
+        assertThat(metrics.counter("ingest.records.invalid").count()).isEqualTo(0); // 0
+        assertThat(metrics.counter("ingest.records.parsed").count()).isEqualTo(2);  // 2
+        assertThat(metrics.counter("ingest.records.total").count()).isEqualTo(2);   // 2
     }
 
     @Test
@@ -54,7 +61,8 @@ class KafkaBatchListenerTest {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         BatchIngestionService service = mock(BatchIngestionService.class);
         Acknowledgment ack = mock(Acknowledgment.class);
-        KafkaBatchListener listener = new KafkaBatchListener(mapper, service);
+        MeterRegistry metrics = new SimpleMeterRegistry();
+        KafkaBatchListener listener = new KafkaBatchListener(mapper, service, metrics);
 
         List<ConsumerRecord<String, String>> records = new ArrayList<>();
         String json = "{\"sensorId\":\"" + UUID.randomUUID() + "\",\"sensorName\":\"s1\",\"type\":\"temp\",\"houseId\":\"h1\",\"zone\":\"z1\",\"timestamp\":\"" + Instant.now() + "\",\"value\":21.5}";
@@ -63,5 +71,9 @@ class KafkaBatchListenerTest {
 
         listener.onBatchMessage(records, ack);
         verify(ack, times(1)).acknowledge();
+
+        assertThat(metrics.counter("ingest.records.invalid").count()).isEqualTo(1); // 1
+        assertThat(metrics.counter("ingest.records.parsed").count()).isEqualTo(1);  // 1
+        assertThat(metrics.counter("ingest.records.total").count()).isEqualTo(2);   // 2
     }
 }

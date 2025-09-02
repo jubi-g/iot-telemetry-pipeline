@@ -139,10 +139,76 @@
       ],
       "fieldConfig": { "defaults": { "unit": "percent" }, "overrides": [] },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Ingest: records/s (ok vs bad)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum by (application) (rate(ingest_records_parsed_total[1m]))",  "legendFormat": "{{application}} ok/s" },
+        { "refId": "B", "expr": "sum by (application) (rate(ingest_records_invalid_total[1m]))", "legendFormat": "{{application}} bad/s" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 40 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Ingest: batch duration (p95)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(ingest_batch_latency_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 40 }
+    },
+    {
+      "type": "stat",
+      "title": "Ingest: batches/s",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(ingest_batch_latency_seconds_count[1m]))", "legendFormat": "batches/s" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 40 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Agg: rows written/s (sensor & group)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(agg_rows_sensor_total[1m]))", "legendFormat": "sensor rows/s" },
+        { "refId": "B", "expr": "sum(rate(agg_rows_group_total[1m]))",  "legendFormat": "group rows/s" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 47 }
+    },
+    {
+      "type": "stat",
+      "title": "Agg: minutes processed/s",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(agg_minutes_processed_total[1m]))", "legendFormat": "mins/s" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 47 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Agg: window duration (p95)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(agg_window_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 47 }
     }
   ],
-  "templating": {
-    "list": []
-  },
+  "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" }
 }

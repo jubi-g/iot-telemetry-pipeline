@@ -2,6 +2,8 @@ package com.itp.aggregate_service.service;
 
 import com.itp.aggregate_service.config.AggConfig;
 import com.itp.aggregate_service.repository.MinuteAggregateRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,12 +18,14 @@ class MinuteAggregationServiceTest {
     AggConfig config;
     MinuteAggregationService service;
     MinuteAggregateRepository repository;
+    MeterRegistry metrics;
 
     @BeforeEach
     void setup() {
         repository = mock(MinuteAggregateRepository.class);
         config  = new AggConfig();
-        service  = new MinuteAggregationService(config, repository);
+        metrics = new SimpleMeterRegistry();
+        service  = new MinuteAggregationService(config, repository, metrics);
     }
 
     @Test
@@ -93,5 +97,10 @@ class MinuteAggregationServiceTest {
             verify(repository, times(1)).upsertGroupAggregate(bucket);
         }
         verifyNoMoreInteractions(repository);
+
+        // Assert metrics; counter is double
+        assertThat(metrics.counter("agg.rows.sensor").count()).isEqualTo(2+0+1+3); // 6
+        assertThat(metrics.counter("agg.rows.group").count()).isEqualTo(1+1+1+1);  // 4
+        assertThat(metrics.counter("agg.minutes.processed").count()).isEqualTo(4); // 4 minute windows
     }
 }

@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 
 @Repository
 @RequiredArgsConstructor
-public class MinuteAggregateRepository implements AggregateReadingdbcRepository {
+public class MinuteAggregateRepository implements AggregateReadingRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
