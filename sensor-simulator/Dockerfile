@@ -1,11 +1,16 @@
-FROM maven:3.9-eclipse-temurin-17 AS build
+# ---- Build ----
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
-RUN mvn -q -e -DskipTests dependency:go-offline
+RUN mvn -q -B -DskipTests dependency:go-offline
 COPY src ./src
-RUN mvn -q -DskipTests package
+RUN mvn -q -B -DskipTests package
 
-FROM eclipse-temurin:17-jre
+# ---- Run ----
+FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/sensor-simulator-*.jar app.jar
+RUN useradd -ms /bin/bash appuser
+USER appuser
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]

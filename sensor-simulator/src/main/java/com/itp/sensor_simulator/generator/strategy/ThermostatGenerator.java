@@ -4,9 +4,9 @@ import com.itp.sensor_simulator.model.SensorTuning;
 import com.itp.sensor_simulator.model.SensorType;
 import org.springframework.stereotype.Component;
 
-import static com.itp.sensor_simulator.generator.util.Mathx.clamp;
-import static com.itp.sensor_simulator.generator.util.Mathx.delta;
-import static com.itp.sensor_simulator.generator.util.Mathx.round1;
+import static com.itp.sensor_simulator.generator.utils.Mathx.clamp;
+import static com.itp.sensor_simulator.generator.utils.Mathx.delta;
+import static com.itp.sensor_simulator.generator.utils.Mathx.round1;
 
 @Component
 public class ThermostatGenerator implements ValueGenerator {

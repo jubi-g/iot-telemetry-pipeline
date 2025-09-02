@@ -36,6 +36,7 @@ public class ReadingBatchRepository implements JdbcBatchRepository {
         String sql = """
           INSERT INTO iot.readings (sensor_id, sensor_name, type, house_id, zone, ts, value)
           VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT (sensor_id, ts) DO NOTHING
         """;
         jdbcTemplate.batchUpdate(sql, batch, batch.size(), (ps, r) -> {
             ps.setObject(1, UUID.fromString(r.sensorId()));

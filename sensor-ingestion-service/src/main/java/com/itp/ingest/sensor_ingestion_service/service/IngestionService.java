@@ -9,9 +9,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class IngestionService {
+public class IngestionService implements BatchIngestionService {
     private final JdbcBatchRepository repository;
 
+    @Override
     public void ingest(List<ReadingMessage> messages) {
         if (messages.isEmpty()) return;
         repository.upsertBatch(messages); // upserts sensors; idempotent

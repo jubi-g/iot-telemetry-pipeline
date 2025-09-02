@@ -17,6 +17,12 @@ services:
       KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - kafka-data:/bitnami/kafka
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
 
   kafdrop:
     image: obsidiandynamics/kafdrop
@@ -25,7 +31,8 @@ services:
     environment:
       KAFKA_BROKERCONNECT: kafka:9092
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
 
   iot-postgres:
     image: postgres:16
@@ -41,13 +48,27 @@ services:
       timeout: 3s
       retries: 20
 
-  sensor-ingestion-service:
-    build: ./sensor-ingestion-service
+  aggregate-service:
+    build: ./aggregate-service
+    environment:
+      POSTGRES_HOST: iot-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: iotdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     depends_on:
-      kafka:
-        condition: service_started
       iot-postgres:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  sensor-ingestion-service:
+    build: ./sensor-ingestion-service
     environment:
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_TOPIC: iot.readings.raw
@@ -56,6 +77,18 @@ services:
       POSTGRES_DB: iotdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    depends_on:
+      kafka:
+        condition: service_healthy
+      iot-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost:8080/actuator/health/readiness" ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    restart: unless-stopped
 
   sensor-simulator:
     build: ./sensor-simulator
@@ -63,7 +96,9 @@ services:
       KAFKA_BOOTSTRAP: kafka:9092
       KAFKA_TOPIC: iot.readings.raw
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   kafka-data:

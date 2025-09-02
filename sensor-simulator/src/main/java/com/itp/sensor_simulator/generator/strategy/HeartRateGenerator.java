@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.itp.sensor_simulator.generator.util.Mathx.clamp;
-import static com.itp.sensor_simulator.generator.util.Mathx.delta;
+import static com.itp.sensor_simulator.generator.utils.Mathx.clamp;
+import static com.itp.sensor_simulator.generator.utils.Mathx.delta;
 
 @Component
 public class HeartRateGenerator implements ValueGenerator {

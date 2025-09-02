@@ -1,4 +1,4 @@
-package com.itp.sensor_simulator.generator.util;
+package com.itp.sensor_simulator.generator.utils;
 
 import java.util.concurrent.ThreadLocalRandom;
 

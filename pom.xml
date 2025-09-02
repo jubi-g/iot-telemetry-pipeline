@@ -9,7 +9,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>sensor-simulator</module>
+        <module>aggregate-service</module>
         <module>sensor-ingestion-service</module>
+        <module>sensor-simulator</module>
     </modules>
 </project>
