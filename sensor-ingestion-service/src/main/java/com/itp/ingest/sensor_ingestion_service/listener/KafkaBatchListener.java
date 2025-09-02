@@ -29,7 +29,11 @@ public class KafkaBatchListener implements BatchListener {
     public void onBatchMessage(List<ConsumerRecord<String, String>> records, Acknowledgment ack) throws Exception {
         var batch = new ArrayList<ReadingMessage>(records.size());
         for (var record : records) {
-            batch.add(objectMapper.readValue(record.value(), ReadingMessage.class));
+            try {
+                batch.add(objectMapper.readValue(record.value(), ReadingMessage.class));
+            } catch (Exception e) {
+                log.warn("Failed to parse message at offset {}: {}", record.offset(), e.getMessage());
+            }
         }
         service.ingest(batch);
         ack.acknowledge();

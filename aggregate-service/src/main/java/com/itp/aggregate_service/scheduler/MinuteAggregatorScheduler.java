@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 
+import static com.itp.aggregate_service.utils.TimeUtil.latestUtcMinute;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -24,13 +26,13 @@ public class MinuteAggregatorScheduler implements Scheduler{
         log.info("Aggregator tick at {}", Instant.now());
         try {
             Instant now = Instant.now().minusSeconds(aggConfig.getDelaySeconds());
-            Instant latestBucket = TimeUtil.truncateToMinute(now);
-            Instant startBucket = service.computeStartBucket(latestBucket);
-            if (startBucket.isAfter(latestBucket)) {
-                log.info("Nothing to aggregate: startBucket={} > latestBucket={}", startBucket, latestBucket);
+            Instant endTime = latestUtcMinute(now);
+            Instant startTime = service.computeStartTime(endTime);
+            if (startTime.isAfter(endTime)) {
+                log.info("Nothing to aggregate: startTime={} > endTime={}", startTime, endTime);
                 return;
             }
-            service.aggregateRange(startBucket, latestBucket);
+            service.aggregateRangedWindow(startTime, endTime);
         } catch (Exception e) {
             log.error("Aggregate job failed", e);
         }

@@ -22,22 +22,27 @@ public class MinuteAggregationService implements AggregationService {
     private final MinuteAggregateRepository repository;
 
     @Override
-    public Instant computeStartBucket(Instant latestBucket) {
-        if (!config.isCatchupOnStart()) return latestBucket;
-        Instant next = Optional.ofNullable(repository.lastAggregatedSensor())
-            .map(i -> latestUtcMinute(i.plus(1, ChronoUnit.MINUTES))).orElse(null);
-        Instant first = Optional.ofNullable(repository.oldestReading())
-            .map(TimeUtil::latestUtcMinute).orElse(null);
-        return laterOf(next, first, latestBucket);
+    public Instant computeStartTime(Instant endTime) {
+        if (!config.isCatchupOnStart()) return latestUtcMinute(endTime);
+        Instant nextAfterLastAgg = Optional.ofNullable(repository.lastAggregatedSensor())
+            .map(i -> latestUtcMinute(i.plus(1, ChronoUnit.MINUTES)))
+            .orElse(null);
+        Instant firstDataBucket = Optional.ofNullable(repository.oldestReading())
+            .map(TimeUtil::latestUtcMinute)
+            .orElse(null);
+
+        // later of the two candidates; if both null -> endTime
+        Instant candidate = laterOf(nextAfterLastAgg, firstDataBucket, endTime);
+        return candidate.isAfter(endTime) ? latestUtcMinute(endTime) : latestUtcMinute(candidate);
     }
 
     @Override
-    public void aggregateRange(Instant startBucket, Instant latestBucket) {
+    public void aggregateRangedWindow(Instant startTime, Instant endTime) {
         int sensor = 0, group = 0;
-        for (Instant bucket = startBucket; !bucket.isAfter(latestBucket); bucket = bucket.plus(1, ChronoUnit.MINUTES)) {
+        for (Instant bucket = startTime; !bucket.isAfter(endTime); bucket = bucket.plus(1, ChronoUnit.MINUTES)) {
             sensor += repository.upsertAggregate(bucket);
             group  += repository.upsertGroupAggregate(bucket);
         }
-        log.info("Aggregated up to {}, wrote sensorRows={}, groupRows={}", latestBucket, sensor, group);
+        log.info("Aggregated up to {}, wrote sensorRows={}, groupRows={}", endTime, sensor, group);
     }
 }
