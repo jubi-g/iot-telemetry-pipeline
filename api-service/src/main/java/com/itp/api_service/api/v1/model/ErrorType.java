@@ -16,7 +16,10 @@ public enum ErrorType {
     SERVICE_UNAVAILABLE     ("1002", "service_unavailable", HttpStatus.SERVICE_UNAVAILABLE),
     DATABASE_UNAVAILABLE    ("2001", "internal_service_error", HttpStatus.SERVICE_UNAVAILABLE),
     DB_VALIDATE_ERROR       ("2002", "internal_service_error", HttpStatus.CONFLICT),
-    JWT_SIGN_ERROR          ("3001", "jwt_sign_error", HttpStatus.UNAUTHORIZED);
+    FORBIDDEN_ERROR         ("3001", "forbidden_error", HttpStatus.UNAUTHORIZED),
+    JWT_SIGN_ERROR          ("3002", "jwt_sign_error", HttpStatus.UNAUTHORIZED),
+    API_VALIDATION_ERROR    ("4001", "validation_error", HttpStatus.BAD_REQUEST)
+    ;
 
     private final String code;
     private final String message;

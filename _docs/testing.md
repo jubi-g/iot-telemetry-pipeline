@@ -2,6 +2,8 @@
 
 The system includes both **unit** and **integration** tests.
 
+TODO: add more integrations tests for edge cases, failure paths, and validations
+
 ### Running Tests
 
 ```bash

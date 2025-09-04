@@ -1,5 +1,6 @@
 package com.itp.api_service._commons.model.dto;
 
+import com.itp.api_service.api.v1.model.dto.stats.StatsQueryParams;
 import com.itp.api_service.services.query.model.dto.TimeWindowRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,5 +20,9 @@ public class SensorStatsRequest implements CacheKeyAware {
     @Override
     public String cacheKey() {
         return "sensor|" + sensorId + "|" + window.cacheKey();
+    }
+
+    public static SensorStatsRequest of(UUID sensorId, StatsQueryParams request) {
+        return new SensorStatsRequest(sensorId, new TimeWindowRequest(request.from(), request.to()));
     }
 }

@@ -1,5 +1,6 @@
 package com.itp.api_service._commons.model.dto;
 
+import com.itp.api_service.api.v1.model.dto.stats.GroupQueryParams;
 import com.itp.api_service.services.query.model.dto.TimeWindowRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,5 +20,9 @@ public class GroupStatsRequest implements CacheKeyAware {
     @Override
     public String cacheKey() {
         return "group|" + houseId + "|" + zone + "|" + type + "|" + window.cacheKey();
+    }
+
+    public static GroupStatsRequest of(GroupQueryParams params) {
+        return new GroupStatsRequest(params.houseId(), params.zone(), params.type(), new TimeWindowRequest(params.from(), params.to()));
     }
 }
