@@ -4,6 +4,8 @@ A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing 
 
 ## Overview
 
+![Overview](./_docs/overview.png)
+
 * ### Components
 
   * #### Services
@@ -19,22 +21,23 @@ A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing 
   * Java 21 (Spring Boot)
   * Kafka
   * Postgres
+  * Caffeine Cache
   * Prometheus
   * Docker
 
 * ### Observability
   * `Grafana` -> http://localhost:3000/dashboards (admin/admin)
-  * `Prommetheus` -> http://localhost:9090/targets
+  * `Prometheus` -> http://localhost:9090/targets
   * `Kafka` -> http://localhost:9000
   * `OpenAPI` -> http://localhost:8099/itp/api/swagger-ui/index.html
 
 ## Quick start
 ```
-# Build and run infra (kafka, postgres)
+# Build and run infra (kafka, postgres, prometheus, grafana)
 ./manage.sh run infra
 
 # Build and run services
-./manage.sh run apps
+./manage.sh run apps (simulator, ingest, aggregate, api)
 
 # Take down infra and services
 ./manage.sh down all
