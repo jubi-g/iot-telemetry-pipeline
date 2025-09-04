@@ -8,66 +8,44 @@ A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing 
 
 * ### Components
 
+  * ### Tech Stack
+
+    | Component          | Version                         | Purpose                                |
+    |--------------------|---------------------------------|----------------------------------------|
+    | Java (Spring Boot) | 21 (Spring Boot 3.x)            | Application services                   |
+    | Kafka              | bitnami/kafka:3.7.0             | Message broker                         |
+    | Postgres           | postgres:16                     | Raw & aggregate storage                |
+    | Caffeine Cache     | (in-process library)            | API cache for hot queries              |
+    | Prometheus         | prom/prometheus:v2.53.0         | Metrics collection                     |
+    | Grafana            | grafana/grafana:11.2.0          | Dashboards & observability             |
+    | Kafdrop            | obsidiandynamics/kafdrop:4.0.0  | Kafka topic inspection UI              |
+    | JMX Exporter       | bitnami/jmx-exporter:0.20.0     | JVM/Kafka metrics for Prometheus       |
+    | Docker Compose     | v2.x                            | Infra & services orchestrator          |
+
+
   * #### Services
-    * `sensor-simulator` > emits synthetic readings to Kafka
-    * `sensor-ingestion-service` > consumes raw readings; validates/transforms; persists to Postgres
-    * `aggregate-service` > scheduled jobs that computes raw readings into aggregated data
-    * `api-service` > modular monolith (for prototype)
-      * `api` > REST controllers & request/response handling
-      * `auth` > provides public token API for authorization
-      * `query` > data aggregation & queries
+    * `sensor-simulator` → emits synthetic readings to Kafka
+    * `sensor-ingestion-service` → consumes raw readings; validates/transforms; persists to Postgres
+    * `aggregate-service` → scheduled jobs that computes raw readings into aggregated data
+    * `api-service` → modular monolith (for prototype, faster iteration)
+      * `api` → REST controllers & request/response handling
+      * `auth` → provides public token API for authorization
+      * `query` → data aggregation & queries
 
-* ### Tech Stack
-  * Java 21 (Spring Boot)
-  * Kafka
-  * Postgres
-  * Caffeine Cache
-  * Prometheus
-  * Docker
+* ### Relevant URLs (Metrics, Observability, API)
+  * `Grafana` → http://localhost:3000/dashboards (admin/admin)
+  * `Prometheus` → http://localhost:9090/targets
+  * `Kafka` → http://localhost:9000
+  * `OpenAPI` → http://localhost:8099/itp/api/swagger-ui/index.html
 
-* ### Observability
-  * `Grafana` -> http://localhost:3000/dashboards (admin/admin)
-  * `Prometheus` -> http://localhost:9090/targets
-  * `Kafka` -> http://localhost:9000
-  * `OpenAPI` -> http://localhost:8099/itp/api/swagger-ui/index.html
-
-## Quick start
-```
-# Build and run infra (kafka, postgres, prometheus, grafana)
-./manage.sh run infra
-
-# Build and run services (simulator, ingest, aggregate, api)
-./manage.sh run apps
-
-# Take down infra and services
-./manage.sh down all
+## 🚀 Quickstart
+Spin up the full pipeline locally and see it in action:
+```bash
+  ./quickstart.sh
 ```
 
-## API cURLs (for local testing)
+> ⚠️ **Note:** For this prototype, secrets (JWT signing key, DB credentials) are defined in `application.properties` and `docker-compose.yml`.
+>
+> In production, these would be externalized and encrypted (Vault, KMS, Kubernetes Secrets).
 
-- ### Test Data
-  * Sensor ID: `f7c69f0d-2c92-42c6-b508-80b56b33524d`
-  * FROM Date: `2025-09-04T08:00:00Z`
-  * TO Date: `2025-09-04T09:00:00Z`
-
-- #### APIs (more available information in swagger)
-  * #### Generate token
-  ```
-  curl --location 'localhost:8099/itp/api/v1/auth/token' \
-  --header 'Content-Type: application/json' \
-  --data '{
-      "scope": "admin read:stats"
-  }'
-  ```
-
-  * #### /v1/stats
-    * ##### Get sensor statistics by sensor-id
-    ```
-    curl --location 'localhost:8099/itp/api/v1/stats/sensor/f7c69f0d-2c92-42c6-b508-80b56b33524d?from=2025-09-04T08%3A00%3A00Z&to=2025-09-04T09%3A00%3A00Z' \
-    --header 'Authorization: {{bearer-jwt}}'
-    ```
-    * ##### Get group statistics (house, zone, type)
-    ```
-    curl --location 'localhost:8099/itp/api/v1/stats/sensor/group?from=2025-09-04T08%3A00%3A00Z&to=2025-09-04T09%3A00%3A00Z&houseId=houseId-30&zone=ZoneB&type=HEART_RATE' \
-    --header 'Authorization: {{bearer-jwt}}'
-    ```
+To read **full deployment protocol** and steps, click [here](./_docs/deployment.md).
