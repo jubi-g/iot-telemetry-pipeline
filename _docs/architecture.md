@@ -2,41 +2,41 @@
 
 This prototype is built around an **event-driven flow**, which is a common way to handle continuous streams of IoT data. The main idea is that sensor readings are first collected, then safely stored, and finally made available for querying and analysis.
 
-- **Data transport (Kafka)**  
-  Kafka acts like a central “mailbox” where data is published by the simulator and consumed by downstream services.  
-  *Why:* it allows services to be loosely coupled, helps absorb traffic spikes, and ensures data can be replayed if needed.
-  *Assumption:* simulator data has gone through MQTT/HTTP validation before data is sent to kafka.
+- **Data transport (Kafka)**
+  - Kafka acts like a central “mailbox” where data is published by the simulator and consumed by downstream services.
+  - *Why:* it allows services to be loosely coupled, helps absorb traffic spikes, and ensures data can be replayed if needed.
+  - *Assumption:* simulator data has gone through MQTT/HTTP validation before data is sent to kafka.
 
-- **Ingestion service**  
-  Reads data from Kafka and writes it into a database (Postgres).  
-  *Why:* Postgres is reliable, well-understood, and gives strong consistency.  
-  *Trade-off:* for very high volumes, a time-series database would perform better, but Postgres is sufficient as prototype.
+- **Ingestion service**
+  - Reads data from Kafka and writes it into a database (Postgres).
+  - *Why:* Postgres is reliable, well-understood, and gives strong consistency.
+  - *Trade-off:* for very high volumes, a time-series database would perform better, but Postgres is sufficient as prototype.
 
-- **Aggregation service**  
-  Periodically calculates statistics (average, min, max, percentiles) so queries don’t need to scan all raw data.  
-  *Why:* pre-computed results make queries much faster.
-  *Trade-off:* results are slightly delayed because they are computed in batches.
+- **Aggregation service**
+  - Periodically calculates statistics (average, min, max, percentiles) so queries don’t need to scan all raw data.
+  - *Why:* pre-computed results make queries much faster.
+  - *Trade-off:* results are slightly delayed because they are computed in batches.
 
-- **API service**  
-  Exposes endpoints for clients to query sensor statistics. It is organized as a modular monolith with separate modules for authentication and querying.  
-  *Why:* this keeps responsibilities clear without adding the overhead of full microservices setup.
-  *Trade-off:* less flexible to scale modules independently.
+- **API service**
+  - Exposes endpoints for clients to query sensor statistics. It is organized as a modular monolith with separate modules for authentication and querying.
+  - *Why:* this keeps responsibilities clear without adding the overhead of full microservices setup.
+  - *Trade-off:* less flexible to scale modules independently.
 
-- **Security**  
-  Endpoints are protected with JWT tokens containing scopes (e.g., `read:stats`).  
-  *Why:* this mimics real-world API security models while keeping setup simple.  
-  *Trade-off:* in production, a proper identity provider would be required.
+- **Security**
+  - Endpoints are protected with JWT tokens containing scopes (e.g., `read:stats`).
+  - *Why:* this mimics real-world API security models while keeping setup simple.
+  - *Trade-off:* in production, a proper identity provider would be required.
 
-- **Observability**  
-  Metrics (e.g., ingestion rate, aggregation latency) are collected with Prometheus and visualized in Grafana.  
-  *Why:* monitoring makes it easier to understand pipeline health and detect issues early.  
-  *Trade-off:* only basic dashboards are included, no automated alerting yet.
+- **Observability**
+  - Metrics (e.g., ingestion rate, aggregation latency) are collected with Prometheus and visualized in Grafana.
+  - *Why:* monitoring makes it easier to understand pipeline health and detect issues early.
+  - *Trade-off:* only basic dashboards are included, no automated alerting yet.
 
 **Known Limitations**
-- Single-node Postgres (no replication).
-- No dead-letter queue for malformed events.
-- Aggregation is batch-based, not real-time.
-- Duplicate protection relies on database constraints only.
+  - Single-node Postgres (no replication). 
+  - No dead-letter queue for malformed events. 
+  - Aggregation is batch-based, not real-time. 
+  - Duplicate protection relies on database constraints only.
 
 ---
 
