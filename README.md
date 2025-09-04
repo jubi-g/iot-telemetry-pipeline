@@ -36,9 +36,37 @@ A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing 
 # Build and run infra (kafka, postgres, prometheus, grafana)
 ./manage.sh run infra
 
-# Build and run services
-./manage.sh run apps (simulator, ingest, aggregate, api)
+# Build and run services (simulator, ingest, aggregate, api)
+./manage.sh run apps
 
 # Take down infra and services
 ./manage.sh down all
+```
+
+## API cURLs (for local testing)
+
+- ### Test Data
+  * Sensor ID: `f7c69f0d-2c92-42c6-b508-80b56b33524d`
+  * FROM Date: `2025-09-04T08:00:00Z`
+  * TO Date: `2025-09-04T09:00:00Z`
+
+- ### Generate token
+```
+curl --location 'localhost:8099/itp/api/v1/auth/token' \
+--header 'Content-Type: application/json' \
+--data '{
+    "scope": "admin read:stats"
+}'
+```
+
+- ### /v1/stats
+  - ### Get sensor statistics by sensor-id
+```
+curl --location 'localhost:8099/itp/api/v1/stats/sensor/f7c69f0d-2c92-42c6-b508-80b56b33524d?from=2025-09-04T08%3A00%3A00Z&to=2025-09-04T09%3A00%3A00Z' \
+--header 'Authorization: {{bearer-jwt}}'
+```
+- ### Get group statistics (house, zone, type)
+```
+curl --location 'localhost:8099/itp/api/v1/stats/sensor/group?from=2025-09-04T08%3A00%3A00Z&to=2025-09-04T09%3A00%3A00Z&houseId=houseId-30&zone=ZoneB&type=HEART_RATE' \
+--header 'Authorization: {{bearer-jwt}}'
 ```

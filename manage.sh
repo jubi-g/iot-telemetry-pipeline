@@ -70,6 +70,7 @@ case "$ACTION" in
         ;;
       all)
         echo "💣 Removing everything (containers + networks + volumes)..."
+        docker compose rm -sf iot-postgres
         docker compose down -v --remove-orphans
         ;;
       *) usage ;;
