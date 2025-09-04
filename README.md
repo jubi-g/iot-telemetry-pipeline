@@ -3,6 +3,7 @@
 A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing them to Kafka, and aggregating them into useful metrics. Designed for quick local spins with Docker Compose and simple Spring Boot services.
 
 ## Overview
+For detailed design decisions and scalability notes, see [architecture.md](./_docs/architecture.md).
 
 ![Overview](./_docs/overview.png)
 
@@ -48,4 +49,4 @@ Spin up the full pipeline locally and see it in action:
 >
 > In production, these would be externalized and encrypted (Vault, KMS, Kubernetes Secrets).
 
-To read **full deployment protocol** and steps, click [here](./_docs/deployment.md).
+To read **full deployment protocol** and steps, click [here](./_docs/deployment.md), and for insights about stability / testing, read [testing.md](./_docs/testing.md).

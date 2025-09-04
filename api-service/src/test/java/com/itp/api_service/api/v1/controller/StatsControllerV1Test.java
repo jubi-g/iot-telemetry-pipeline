@@ -5,6 +5,7 @@ import com.itp.api_service.api.v1.model.dto.stats.GroupStatsResult;
 import com.itp.api_service.api.v1.model.dto.stats.SensorStatsResult;
 import com.itp.api_service.api.v1.model.dto.stats.StatsResult;
 import com.itp.api_service.api.v1.service.StatsService;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Tag("integration")
 @WebMvcTest(controllers = StatsControllerV1.class)
 @AutoConfigureMockMvc(addFilters = false)
 @TestPropertySource(properties = {
