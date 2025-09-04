@@ -5,20 +5,28 @@ A minimal end-to-end pipeline for ingesting raw IoT sensor readings, publishing 
 ## Overview
 
 * ### Components
-  * `sensor-simulator` > emits synthetic readings to Kafka
-  * `sensor-ingestion-service` > consumes raw readings; validates/transforms; persists to Postgres
-  * `aggregate-service` > scheduled jobs that computes raw readings into aggregated data
+
+  * #### Services
+    * `sensor-simulator` > emits synthetic readings to Kafka
+    * `sensor-ingestion-service` > consumes raw readings; validates/transforms; persists to Postgres
+    * `aggregate-service` > scheduled jobs that computes raw readings into aggregated data
+    * `api-service` > modular monolith (for prototype)
+      * `api` > REST controllers & request/response handling
+      * `auth` > provides public token API for authorization
+      * `query` > data aggregation & queries
 
 * ### Tech Stack
-  * Java 17 (Spring Boot)
+  * Java 21 (Spring Boot)
   * Kafka
   * Postgres
+  * Prometheus
   * Docker
 
 * ### Observability
-  * `Grafana` -> http://localhost:3000/dashboards
+  * `Grafana` -> http://localhost:3000/dashboards (admin/admin)
   * `Prommetheus` -> http://localhost:9090/targets
   * `Kafka` -> http://localhost:9000
+  * `OpenAPI` -> http://localhost:8099/itp/api/swagger-ui/index.html
 
 ## Quick start
 ```

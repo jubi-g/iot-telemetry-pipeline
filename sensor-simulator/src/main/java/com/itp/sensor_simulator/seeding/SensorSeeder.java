@@ -24,12 +24,15 @@ public class SensorSeeder {
         List<String> zonesPool = appConfig.getZones();
         List<Sensor> seeded = new ArrayList<>();
 
+        int sensorCount = appConfig.getPerSensorCount() != null ? appConfig.getPerSensorCount() : 3;
         int houses = appConfig.getHousesCount() != null ? appConfig.getHousesCount() : 3;
         for (int h = 1; h <= houses; h++) {
-            String houseId = generateName("houseId-", h);
-            seeded.add(Sensor.of(generateName("thermostat-", h), SensorType.THERMOSTAT, pickZone(zonesPool, 0, "ZoneA"), houseId));
-            seeded.add(Sensor.of(generateName("hr-", h), SensorType.HEART_RATE, pickZone(zonesPool, 1, "ZoneB"), houseId));
-            seeded.add(Sensor.of(generateName("fuel-", h), SensorType.FUEL_CONSUMPTION, pickZone(zonesPool, 2, "ZoneC"), houseId));
+            String houseId = generateName("houseId-", h, 0);
+            for (int s = 1; s <= sensorCount; s++) {
+                seeded.add(Sensor.of(generateName("thermostat-", h, s), SensorType.THERMOSTAT, pickZone(zonesPool, 0, "ZoneA"), houseId));
+                seeded.add(Sensor.of(generateName("hr-", h, s), SensorType.HEART_RATE, pickZone(zonesPool, 1, "ZoneB"), houseId));
+                seeded.add(Sensor.of(generateName("fuel-", h, s), SensorType.FUEL_CONSUMPTION, pickZone(zonesPool, 2, "ZoneC"), houseId));
+            }
         }
 
         sensorRegistry.setAll(seeded);
@@ -41,7 +44,7 @@ public class SensorSeeder {
         return (zones != null && !zones.isEmpty()) ? zones.get(idx % zones.size()) : fallback;
     }
 
-    private String generateName(String prefix, Integer count) {
-        return prefix + count;
+    private String generateName(String prefix, Integer count, Integer sensorCount) {
+        return prefix + count + sensorCount;
     }
 }

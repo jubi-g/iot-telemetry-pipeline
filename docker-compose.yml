@@ -80,6 +80,28 @@ services:
         condition: service_started
     restart: unless-stopped
 
+  api-service:
+    build: ./api-service
+    depends_on:
+      iot-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: iot-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: iotdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "8099:8080"
+      - "8081:8081"
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
   aggregate-service:
     build: ./aggregate-service
     environment:

@@ -16,3 +16,8 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: [ 'sensor-simulator:8081' ]
+
+  - job_name: 'api-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [ 'api-service:8081' ]

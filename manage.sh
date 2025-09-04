@@ -12,11 +12,11 @@ TARGET=${2:-all}
 case "$ACTION" in
   run)
     case "$TARGET" in
-      ingest)
-        echo "🚀 Starting app services (ingest)..."
-        docker compose rm -sf sensor-ingestion-service
-        docker compose build --no-cache sensor-ingestion-service
-        docker compose up -d sensor-ingestion-service
+      api)
+        echo "🚀 Starting service (api)..."
+        docker compose rm -sf api-service
+        docker compose build --no-cache api-service
+        docker compose up -d api-service
         ;;
       infra)
         echo "🚀 Starting infra (Kafka, Kafdrop, Postgres, Prometheus, Grafana)..."
@@ -24,16 +24,19 @@ case "$ACTION" in
         docker compose up -d kafka kafdrop iot-postgres prometheus grafana
         ;;
       apps)
-        echo "🚀 Starting app services (ingestion, simulator, aggregator)..."
-        docker compose build --no-cache sensor-ingestion-service sensor-simulator aggregate-service
-        docker compose up -d sensor-ingestion-service sensor-simulator aggregate-service
+        echo "🚀 Starting app services (ingestion, simulator, aggregator, api)..."
+        docker compose rm -sf sensor-ingestion-service sensor-simulator aggregate-service api-service
+        docker compose build --no-cache sensor-ingestion-service sensor-simulator aggregate-service api-service
+        docker compose up -d sensor-ingestion-service sensor-simulator aggregate-service api-service
         ;;
       all)
         echo "🚀 Starting infra + apps..."
         docker compose up -d kafka kafdrop iot-postgres prometheus grafana
         echo "⏳ Waiting for infra to initialize..."
         sleep 15
-        docker compose up -d sensor-ingestion-service sensor-simulator aggregate-service
+        docker compose rm -sf sensor-ingestion-service sensor-simulator aggregate-service api-service
+        docker compose build --no-cache sensor-ingestion-service sensor-simulator aggregate-service api-service
+        docker compose up -d sensor-ingestion-service sensor-simulator aggregate-service api-service
         ;;
       *) usage ;;
     esac
@@ -46,7 +49,7 @@ case "$ACTION" in
         ;;
       apps)
         echo "🛑 Stopping apps..."
-        docker compose stop sensor-ingestion-service sensor-simulator aggregate-service
+        docker compose stop sensor-ingestion-service sensor-simulator aggregate-service api
         ;;
       all)
         echo "🛑 Stopping everything..."
@@ -63,7 +66,7 @@ case "$ACTION" in
         ;;
       apps)
         echo "💣 Removing apps..."
-        docker compose rm -sf sensor-ingestion-service sensor-simulator aggregate-service
+        docker compose rm -sf sensor-ingestion-service sensor-simulator aggregate-service api-service
         ;;
       all)
         echo "💣 Removing everything (containers + networks + volumes)..."

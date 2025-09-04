@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>api-service</module>
         <module>aggregate-service</module>
         <module>sensor-ingestion-service</module>
         <module>sensor-simulator</module>
