@@ -1,5 +1,6 @@
 package com.itp.ingest.sensor_ingestion_service.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.util.backoff.ExponentialBackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
 @Slf4j
@@ -23,9 +25,7 @@ import org.springframework.util.backoff.FixedBackOff;
 public class KafkaConfig {
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper om = new ObjectMapper();
-        om.registerModule(new JavaTimeModule());
-        return om;
+        return new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
     @Bean
@@ -44,12 +44,13 @@ public class KafkaConfig {
         @Value("${app.kafka.backoff.ms:500}") long backoffMs,
         @Value("${app.kafka.max.retries:3}") long maxRetries
     ) {
+        System.out.println(topic + ".DLT hehehehe");
         var recoverer = new DeadLetterPublishingRecoverer(
             template,
             (rec, ex) -> new TopicPartition(topic + ".DLT", rec.partition())
         );
-        var eh = new DefaultErrorHandler(recoverer, new FixedBackOff(backoffMs, maxRetries));
-        eh.addNotRetryableExceptions(DeserializationException.class, IllegalArgumentException.class);
+        var eh = new DefaultErrorHandler(recoverer, new ExponentialBackOff(backoffMs, maxRetries));
+        eh.addNotRetryableExceptions(DeserializationException.class, IllegalArgumentException.class, JsonProcessingException.class);
         return eh;
     }
 
@@ -57,7 +58,7 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
         ConsumerFactory<String, String> consumerFactory,
         DefaultErrorHandler errorHandler,
-        @Value("${app.kafka.concurrency:3}") int concurrency
+        @Value("${app.kafka.concurrency:1}") int concurrency
     ) {
         var f = new ConcurrentKafkaListenerContainerFactory<String, String>();
         f.setConsumerFactory(consumerFactory);

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.listener.BatchListenerFailedException;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
@@ -27,29 +28,27 @@ public class KafkaBatchListener implements BatchListener {
     @KafkaListener(
         topics = "${app.topic:iot.readings.raw}",
         containerFactory = "kafkaListenerContainerFactory",
-        concurrency = "3"
+        concurrency = "1"
     )
     public void onBatchMessage(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
         AtomicInteger parsed = new AtomicInteger();
-        AtomicInteger invalid = new AtomicInteger();
-
+        List<ReadingMessage> batch = new ArrayList<>(records.size());
         metrics.batchTimer().record(() -> {
-            var batch = new ArrayList<ReadingMessage>(records.size());
-            for (var record : records) {
+            for (int i = 0; i < records.size(); i++) {
+                var record = records.get(i);
                 try {
                     batch.add(objectMapper.readValue(record.value(), ReadingMessage.class));
                     parsed.getAndIncrement();
                 } catch (Exception e) {
-                    invalid.getAndIncrement();
+                    metrics.invalid().increment();
                     log.warn("Invalid record at {}-{}@{}: {}", record.topic(), record.partition(), record.offset(), e.toString());
+                    throw new BatchListenerFailedException("Parsing error", e, i);
                 }
             }
 
             if (!batch.isEmpty()) {
                 service.ingest(batch);
                 ack.acknowledge();
-
-                metrics.invalid().increment(invalid.doubleValue());
                 metrics.parsed().increment(parsed.doubleValue());
                 metrics.total().increment(records.size());
             }

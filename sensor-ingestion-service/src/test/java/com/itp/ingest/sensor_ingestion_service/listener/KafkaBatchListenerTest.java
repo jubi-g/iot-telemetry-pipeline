@@ -9,6 +9,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.kafka.listener.BatchListenerFailedException;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.Instant;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,7 +59,7 @@ class KafkaBatchListenerTest {
     }
 
     @Test
-    void onBatchMessage_skipsInvalidRecords() throws Exception {
+    void onBatchMessage_rethrowsInvalidRecords() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         BatchIngestionService service = mock(BatchIngestionService.class);
         Acknowledgment ack = mock(Acknowledgment.class);
@@ -69,11 +71,12 @@ class KafkaBatchListenerTest {
         records.add(new ConsumerRecord<>("iot.readings.raw", 0, 0L, "k1", json));
         records.add(new ConsumerRecord<>("iot.readings.raw", 0, 1L, "k2", null));
 
-        listener.onBatchMessage(records, ack);
-        verify(ack, times(1)).acknowledge();
-
+        try {
+            listener.onBatchMessage(records, ack);
+        } catch (BatchListenerFailedException e) {
+            assertEquals(1, e.getIndex());
+        }
+        verify(ack, times(0)).acknowledge();
         assertThat(metrics.invalid().count()).isEqualTo(1); // 1
-        assertThat(metrics.parsed().count()).isEqualTo(1);  // 1
-        assertThat(metrics.total().count()).isEqualTo(2);   // 2
     }
 }

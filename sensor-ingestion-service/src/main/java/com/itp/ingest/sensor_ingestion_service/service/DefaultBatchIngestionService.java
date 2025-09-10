@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class IngestionService implements BatchIngestionService {
+public class DefaultBatchIngestionService implements BatchIngestionService {
     private final JdbcBatchRepository repository;
 
     @Override
