@@ -1,5 +1,6 @@
 package com.itp.aggregate_service.repository.impl;
 
+import com.itp.aggregate_service.repository.MinuteAggregateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class MinuteAggregateRepository implements com.itp.aggregate_service.repository.MinuteAggregateRepository {
+public class MinuteAggregateRepositoryImpl implements MinuteAggregateRepository {
 
     private final JdbcTemplate jdbcTemplate;
 

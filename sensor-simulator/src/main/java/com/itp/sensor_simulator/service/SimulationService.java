@@ -1,7 +1,7 @@
 package com.itp.sensor_simulator.service;
 
 import com.itp.sensor_simulator.client.ReadingProducer;
-import com.itp.sensor_simulator.generator.GeneratorRegistry;
+import com.itp.sensor_simulator.generator.SensorReadingGeneratorRegistry;
 import com.itp.sensor_simulator.model.Sensor;
 import com.itp.sensor_simulator.model.dto.Reading;
 import com.itp.sensor_simulator.generator.SensorRegistry;
@@ -15,7 +15,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class SimulationService {
     private final SensorRegistry registry;
-    private final GeneratorRegistry generators;
+    private final SensorReadingGeneratorRegistry generators;
     private final ReadingProducer producer;
 
     @Scheduled(fixedRate = 1000, initialDelay = 2000)

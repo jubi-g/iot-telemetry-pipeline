@@ -1,25 +1,38 @@
-package com.itp.sensor_simulator.seeding;
+package com.itp.sensor_simulator.seeding.seeders;
 
 import com.itp.sensor_simulator.config.AppConfig;
 import com.itp.sensor_simulator.generator.SensorRegistry;
+import com.itp.sensor_simulator.model.SeedType;
 import com.itp.sensor_simulator.model.Sensor;
 import com.itp.sensor_simulator.model.SensorType;
-import jakarta.annotation.PostConstruct;
+import com.itp.sensor_simulator.seeding.Seeder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@Primary
 @Component
 @RequiredArgsConstructor
-public class SensorSeeder {
+public class DefaultSeeder implements Seeder {
     private final AppConfig appConfig;
     private final SensorRegistry sensorRegistry;
 
-    @PostConstruct
+    @Override
+    public SeedType supports() {
+        return SeedType.DEFAULT;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return true;
+    }
+
+    @Override
     public void seed() {
         List<String> zonesPool = appConfig.getZones();
         List<Sensor> seeded = new ArrayList<>();
@@ -47,4 +60,5 @@ public class SensorSeeder {
     private String generateName(String prefix, Integer count, Integer sensorCount) {
         return prefix + count + sensorCount;
     }
+
 }

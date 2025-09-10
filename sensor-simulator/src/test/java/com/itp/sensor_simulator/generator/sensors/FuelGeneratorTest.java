@@ -1,4 +1,4 @@
-package com.itp.sensor_simulator.generator.strategy;
+package com.itp.sensor_simulator.generator.sensors;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FuelGeneratorTest {
 
-    private final FuelGenerator generator = new FuelGenerator();
+    private final GasConsumptionGenerator generator = new GasConsumptionGenerator();
 
     @Test
     void next_withinBounds_andRoundedTo1dp() {

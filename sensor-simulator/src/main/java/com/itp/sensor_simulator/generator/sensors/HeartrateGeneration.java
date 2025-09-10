@@ -1,4 +1,4 @@
-package com.itp.sensor_simulator.generator.strategy;
+package com.itp.sensor_simulator.generator.sensors;
 
 import com.itp.sensor_simulator.model.SensorTuning;
 import com.itp.sensor_simulator.model.SensorType;
@@ -10,7 +10,7 @@ import static com.itp.sensor_simulator.generator.utils.Mathx.clamp;
 import static com.itp.sensor_simulator.generator.utils.Mathx.delta;
 
 @Component
-public class HeartRateGenerator implements ValueGenerator {
+public class HeartrateGeneration implements SensorReadingGenerator {
     private static final SensorTuning DEF = new SensorTuning(76.0, 55.0, 165.0, 2.2);
 
     @Override

@@ -1,5 +1,6 @@
 package com.itp.sensor_simulator.config;
 
+import com.itp.sensor_simulator.model.SeedType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -16,4 +17,5 @@ public class AppConfig {
     private Integer housesCount;
     private Integer perSensorCount;
     private List<String> zones;
+    private SeedType seedType;
 }

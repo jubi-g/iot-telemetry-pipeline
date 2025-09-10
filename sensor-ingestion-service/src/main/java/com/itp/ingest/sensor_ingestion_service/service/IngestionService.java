@@ -4,6 +4,7 @@ import com.itp.ingest.sensor_ingestion_service.model.ReadingMessage;
 import com.itp.ingest.sensor_ingestion_service.repository.JdbcBatchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,9 +14,11 @@ public class IngestionService implements BatchIngestionService {
     private final JdbcBatchRepository repository;
 
     @Override
+    @Transactional
     public void ingest(List<ReadingMessage> messages) {
         if (messages.isEmpty()) return;
-        repository.upsertBatch(messages); // upserts sensors; idempotent
-        repository.insertBatch(messages); // inserts time-series values of readings
+        repository.upsertSensors(messages); // upserts sensors; idempotent
+        repository.insertReadings(messages); // inserts time-series values of readings
     }
+
 }

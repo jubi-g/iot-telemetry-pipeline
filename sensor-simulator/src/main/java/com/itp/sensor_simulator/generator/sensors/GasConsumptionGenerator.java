@@ -1,4 +1,4 @@
-package com.itp.sensor_simulator.generator.strategy;
+package com.itp.sensor_simulator.generator.sensors;
 
 import com.itp.sensor_simulator.model.SensorTuning;
 import com.itp.sensor_simulator.model.SensorType;
@@ -9,12 +9,12 @@ import static com.itp.sensor_simulator.generator.utils.Mathx.delta;
 import static com.itp.sensor_simulator.generator.utils.Mathx.round1;
 
 @Component
-public class ThermostatGenerator implements ValueGenerator {
-    private static final SensorTuning DEF = new SensorTuning(22.5, 18.0, 30.0, 0.12);
+public class GasConsumptionGenerator implements SensorReadingGenerator {
+    private static final SensorTuning DEF = new SensorTuning(12.0, 5.0, 20.0, 1.2);
 
     @Override
     public SensorType supports() {
-        return SensorType.THERMOSTAT;
+        return SensorType.FUEL_CONSUMPTION;
     }
 
     @Override

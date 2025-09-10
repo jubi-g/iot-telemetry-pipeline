@@ -1,7 +1,7 @@
 package com.itp.aggregate_service.service;
 
 import com.itp.aggregate_service.config.AggConfig;
-import com.itp.aggregate_service.repository.impl.MinuteAggregateRepository;
+import com.itp.aggregate_service.repository.impl.MinuteAggregateRepositoryImpl;
 import com.itp.aggregate_service.utils.TimeUtil;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -22,7 +22,7 @@ import static com.itp.aggregate_service.utils.TimeUtil.latestUtcMinute;
 @RequiredArgsConstructor
 public class MinuteAggregationService implements AggregationService {
     private final AggConfig config;
-    private final MinuteAggregateRepository repository;
+    private final MinuteAggregateRepositoryImpl repository;
     private final MeterRegistry metrics;
 
     @Override

@@ -1,4 +1,4 @@
-package com.itp.sensor_simulator.seeding;
+package com.itp.sensor_simulator.seeding.seeders;
 
 import com.itp.sensor_simulator.config.AppConfig;
 import com.itp.sensor_simulator.generator.SensorRegistry;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SensorSeederTest {
+class DefaultSeederTest {
 
     @Test
     void seedsExpectedCounts() {
@@ -18,15 +18,16 @@ class SensorSeederTest {
         props.setZones(java.util.List.of("ZoneA","ZoneB","ZoneC"));
 
         var registry = new SensorRegistry();
-        var seeder = new SensorSeeder(props, registry);
+        var seeder = new DefaultSeeder(props, registry);
         seeder.seed();
 
         var sensors = registry.all();
         assertThat(sensors).isNotEmpty();
         assertThat(sensors.size()).isEqualTo(2 * (3 * 3)); // 2 houses × 3 fixed sensors * 3 per-sensor
         assertThat(sensors.stream()
-                .map(Sensor::type).distinct())
-                .containsExactlyInAnyOrder(SensorType.THERMOSTAT, SensorType.HEART_RATE, SensorType.FUEL_CONSUMPTION);
+            .map(Sensor::type).distinct())
+            .containsExactlyInAnyOrder(SensorType.THERMOSTAT, SensorType.HEART_RATE, SensorType.FUEL_CONSUMPTION);
     }
+
 
 }
