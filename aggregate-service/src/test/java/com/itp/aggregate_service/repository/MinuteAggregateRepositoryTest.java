@@ -1,6 +1,6 @@
 package com.itp.aggregate_service.repository;
 
-import com.itp.aggregate_service.repository.impl.MinuteAggregateRepository;
+import com.itp.aggregate_service.repository.impl.MinuteAggregateRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,12 +15,12 @@ import static org.mockito.Mockito.verify;
 
 class MinuteAggregateRepositoryTest {
     JdbcTemplate jdbcTemplate;
-    MinuteAggregateRepository repository;
+    MinuteAggregateRepositoryImpl repository;
 
     @BeforeEach
     void setup() {
         jdbcTemplate = mock(JdbcTemplate.class);
-        repository = new MinuteAggregateRepository(jdbcTemplate);
+        repository = new MinuteAggregateRepositoryImpl(jdbcTemplate);
     }
 
     @Test

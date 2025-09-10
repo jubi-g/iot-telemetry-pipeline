@@ -5,7 +5,6 @@ import java.time.Instant;
 
 public final class TimeValidator {
     private TimeValidator() {}
-
     public static void assertValid(Instant from, Instant to, Duration maxWindow) {
         if (from == null || to == null) throw new IllegalArgumentException("from/to required");
         if (!from.isBefore(to)) throw new IllegalArgumentException("from must be before to");

@@ -1,7 +1,7 @@
 package com.itp.aggregate_service.service;
 
 import com.itp.aggregate_service.config.AggConfig;
-import com.itp.aggregate_service.repository.impl.MinuteAggregateRepository;
+import com.itp.aggregate_service.repository.impl.MinuteAggregateRepositoryImpl;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +17,12 @@ class MinuteAggregationServiceTest {
 
     AggConfig config;
     MinuteAggregationService service;
-    MinuteAggregateRepository repository;
+    MinuteAggregateRepositoryImpl repository;
     MeterRegistry metrics;
 
     @BeforeEach
     void setup() {
-        repository = mock(MinuteAggregateRepository.class);
+        repository = mock(MinuteAggregateRepositoryImpl.class);
         config  = new AggConfig();
         metrics = new SimpleMeterRegistry();
         service  = new MinuteAggregationService(config, repository, metrics);

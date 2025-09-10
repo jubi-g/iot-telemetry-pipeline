@@ -36,12 +36,12 @@ class PostgresBatchRepositoryTest {
 
         ArgumentCaptor<String> sqlCap = ArgumentCaptor.forClass(String.class);
 
-        repo.upsertBatch(batch);
+        repo.insertReadings(batch);
 
         verify(jdbc, times(1)).batchUpdate(sqlCap.capture(), eq(batch), eq(batch.size()), any());
         String sql = sqlCap.getValue();
         assertThat(sql)
             .contains("INSERT INTO iot.readings")
-            .contains("ON CONFLICT (sensor_id, ts) DO UPDATE SET");
+            .contains("ON CONFLICT (sensor_id, ts) DO NOTHING");
     }
 }

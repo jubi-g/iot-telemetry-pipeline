@@ -1,4 +1,4 @@
-package com.itp.sensor_simulator.generator.strategy;
+package com.itp.sensor_simulator.generator.sensors;
 
 import org.junit.jupiter.api.Test;
 

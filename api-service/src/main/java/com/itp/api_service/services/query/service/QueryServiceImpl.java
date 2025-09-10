@@ -21,7 +21,6 @@ public class QueryServiceImpl implements QueryService {
 
     private final AggregateQueryRepository repository;
 
-
     @Override
     @Cacheable(
         cacheNames = "sensorStats",
