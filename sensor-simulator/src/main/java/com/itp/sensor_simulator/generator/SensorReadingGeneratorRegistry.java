@@ -13,7 +13,9 @@ public class SensorReadingGeneratorRegistry {
     private final Map<SensorType, SensorReadingGenerator> registry;
 
     public SensorReadingGeneratorRegistry(List<SensorReadingGenerator> generators) {
-        this.registry = generators.stream().collect(Collectors.toMap(SensorReadingGenerator::supports, s -> s));
+        this.registry = generators.stream()
+            .collect(Collectors
+                .toMap(SensorReadingGenerator::supports, s -> s));
     }
 
     public SensorReadingGenerator forType(SensorType type) {

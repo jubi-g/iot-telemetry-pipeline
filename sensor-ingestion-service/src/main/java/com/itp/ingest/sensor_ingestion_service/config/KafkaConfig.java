@@ -44,12 +44,12 @@ public class KafkaConfig {
         @Value("${app.kafka.backoff.ms:500}") long backoffMs,
         @Value("${app.kafka.max.retries:3}") long maxRetries
     ) {
-        System.out.println(topic + ".DLT hehehehe");
         var recoverer = new DeadLetterPublishingRecoverer(
             template,
             (rec, ex) -> new TopicPartition(topic + ".DLT", rec.partition())
         );
         var eh = new DefaultErrorHandler(recoverer, new ExponentialBackOff(backoffMs, maxRetries));
+        eh.setCommitRecovered(true);
         eh.addNotRetryableExceptions(DeserializationException.class, IllegalArgumentException.class, JsonProcessingException.class);
         return eh;
     }

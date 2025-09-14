@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS iot.sensors (
 );
 
 CREATE TABLE IF NOT EXISTS iot.readings (
-  sensor_id   UUID NOT NULL,
+  sensor_id   UUID NOT NULL REFERENCES iot.sensors(id) DEFERRABLE INITIALLY DEFERRED,
   sensor_name TEXT NOT NULL,
   type        TEXT NOT NULL,
   house_id    TEXT NOT NULL,

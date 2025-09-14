@@ -48,6 +48,7 @@ public class KafkaBatchListener implements BatchListener {
 
             if (!batch.isEmpty()) {
                 service.ingest(batch);
+
                 ack.acknowledge();
                 metrics.parsed().increment(parsed.doubleValue());
                 metrics.total().increment(records.size());
